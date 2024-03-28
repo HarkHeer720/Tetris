@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Media;
 using System.Windows.Forms;
 
+/*NOTE:
+*Clearing lines doesnt work consitently sometimes some of the squares arent deleted
+*Rotating doesnt work yet
+*Peices can be clipped into other peices if you move them into the side of them
+*/
 namespace Tetris
 {
     public partial class GameScreen : UserControl
@@ -17,8 +23,8 @@ namespace Tetris
         int startY = 40;
         int squareSize = 30;
         int multiplier = 1;
+        int score = 0;
         Random random = new Random();
-
 
         bool up, down, left, right;
         bool canMoveRight, canMoveLeft;
@@ -27,6 +33,9 @@ namespace Tetris
         Pen whitePen = new Pen(Color.White);
         SolidBrush redBrush = new SolidBrush(Color.Red);
         SolidBrush greenBrush = new SolidBrush(Color.Green);
+
+        SoundPlayer blockDrop = new SoundPlayer(Properties.Resources.BlockDrop);
+        SoundPlayer lineClear = new SoundPlayer(Properties.Resources.LineClear);
 
         public GameScreen()
         {
@@ -283,6 +292,7 @@ namespace Tetris
                     Rectangle landedRec = new Rectangle(landedPieces[j].x, landedPieces[j].y, 30, 30);
                     if (landedRec.IntersectsWith(movingRec))
                     {
+                        blockDrop.Play();
                         CreatePiece();
                         if (landedPieces[j].y <= 100)
                         {
@@ -294,6 +304,7 @@ namespace Tetris
 
                 if (movingPieces[i].y == 640)
                 {
+                    blockDrop.Play();
                     CreatePiece();
                     break;
                 }
@@ -333,6 +344,8 @@ namespace Tetris
                                     l.y += 30;
                                 }
                             }
+                            score++;
+                            lineClear.Play();
                         }
                     }
                 }
@@ -374,6 +387,8 @@ namespace Tetris
             {
                 e.Graphics.RotateTransform(90);
             }
+
+            ScoreLabel.Text = score + "";
         }
 
         void GameInitialize()
